@@ -13,6 +13,8 @@ $OFF->parseRequest();
 $OFF->controller();
 $OFF->view();
 
+// End of execution
+
 class OFF {
 
   public $router;
