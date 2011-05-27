@@ -2,14 +2,15 @@
 
 require('settings.php');
 
+$OFF = new OFF($settings);
+$OFF->parseRequest();
+
 if (isset($settings['libs'])) {
   foreach ($settings['libs'] as $lib) {
     include "libs/$lib";
   }
 }
 
-$OFF = new OFF($settings);
-$OFF->parseRequest();
 $OFF->controller();
 $OFF->view();
 
@@ -31,6 +32,7 @@ class OFF {
       'calculated_view' => '',
       'args' => array(),
       'title' => 'OFF site',
+      'variables' => array(),
     );
     $this->settings = (object) $settings;
     if (isset($this->settings->theme))
@@ -67,23 +69,35 @@ class OFF {
       $classname = ucfirst($this->router->controller);
       $methodname = $this->router->action;
       $controller = new $classname($this);
-      $controller->$methodname();
+      $this->router->variables = $controller->$methodname();
     }
   }
 
   function view() {
-    // Check for view implementation
-    if (is_file("themes/{$this->theme}/{$this->router->view_controller}/{$this->router->view_action}.php")) { // Current theme
-      $this->router->calculated_view = "themes/{$this->theme}/{$this->router->view_controller}/{$this->router->view_action}.php";
-    } elseif (is_file("themes/default/{$this->router->view_controller}/{$this->router->view_action}.php")) { // Default theme
-      $this->router->calculated_view = "themes/default/{$this->router->view_controller}/{$this->router->view_action}.php";
-    } elseif (is_file("themes/{$this->theme}/index/error.php")) { // 404 from current theme
-      $this->router->calculated_view = "themes/{$this->theme}/index/error.php";
+    // Check for view implementations
+
+    if (!empty($this->router->view_action) && is_file("themes/{$this->theme}/views/{$this->router->view_controller}/{$this->router->view_action}.php")) {
+      // Current theme controller/action
+      $this->router->calculated_view = "themes/{$this->theme}/views/{$this->router->view_controller}/{$this->router->view_action}.php";
+    } elseif (!empty($this->router->view_action) && is_file("themes/default/views/{$this->router->view_controller}/{$this->router->view_action}.php")) {
+      // Default theme controller/action
+      $this->router->calculated_view = "themes/default/views/{$this->router->view_controller}/{$this->router->view_action}.php";
+    if (is_file("themes/{$this->theme}/views/{$this->router->view_controller}.php")) {
+       // Current theme controller
+      $this->router->calculated_view = "themes/{$this->theme}/views/{$this->router->view_controller}.php";
+    } elseif (is_file("themes/default/views/{$this->router->view_controller}.php")) {
+      // Default theme controller
+      $this->router->calculated_view = "themes/default/views/{$this->router->view_controller}.php";
+    } elseif (is_file("themes/{$this->theme}/views/index/error.php")) {
+      // 404 from current theme
+      $this->router->calculated_view = "themes/{$this->theme}/views/index/error.php";
       $this->router->args = array(1 => 404);
-    } elseif (is_file("themes/default/index/error.php")) { // 404 from default theme
-      $this->router->calculated_view = "themes/default/index/error.php";
+    } elseif (is_file("themes/default/views/index/error.php")) {
+      // 404 from default theme
+      $this->router->calculated_view = "themes/default/views/index/error.php";
       $this->router->args = array(1 => 404);
-    } else { // Time to panic
+    } else {
+      // Time to panic
       $this->router->calculated_view = '';
       header('HTTP/1.0 404 Not Found');
       $this->message['error'] = "Neither page nor errorpage found.";
@@ -105,15 +119,18 @@ class OFF {
   }
 
   function outputView() {
-    if (!empty($this->router->calculated_view))
+    if (!empty($this->router->calculated_view)) {
+      extract($this->router->variables, EXTR_SKIP | EXTR_REFS);
       include $this->router->calculated_view;
+    }
   }
 
 }
 
 abstract class OFFController {
   public $OFF;
-  function __construct($OFF) {
+  function __construct() {
+    global $OFF;
     $this->OFF = $OFF;
   }
 }

@@ -8,8 +8,4 @@ class Index extends OFFController {
 
   }
   
-  function __construct($OFF) {
-    OFFController::__construct($OFF);
-  }
-
 }
