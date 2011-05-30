@@ -22,7 +22,7 @@ class OFF {
   public $theme = 'default';
   public $settings = array();
   public $message = array();
-  
+
   function __construct($settings) {
     $this->router = (object) array(
       'controller' => 'index',
@@ -69,7 +69,9 @@ class OFF {
       $classname = ucfirst($this->router->controller);
       $methodname = $this->router->action;
       $controller = new $classname($this);
-      $this->router->variables = $controller->$methodname();
+      $controllerout = $controller->$methodname();
+      if (is_array($controllerout))
+      $this->router->variables = $controllerout;
     }
   }
 
@@ -82,7 +84,7 @@ class OFF {
     } elseif (!empty($this->router->view_action) && is_file("themes/default/views/{$this->router->view_controller}/{$this->router->view_action}.php")) {
       // Default theme controller/action
       $this->router->calculated_view = "themes/default/views/{$this->router->view_controller}/{$this->router->view_action}.php";
-    if (is_file("themes/{$this->theme}/views/{$this->router->view_controller}.php")) {
+    } elseif (is_file("themes/{$this->theme}/views/{$this->router->view_controller}.php")) {
        // Current theme controller
       $this->router->calculated_view = "themes/{$this->theme}/views/{$this->router->view_controller}.php";
     } elseif (is_file("themes/default/views/{$this->router->view_controller}.php")) {
@@ -124,8 +126,22 @@ class OFF {
       include $this->router->calculated_view;
     }
   }
+  
+  function outputFragment($fragment, $variables = array()) {
+    if (is_file("themes/{$this->theme}/fragments/{$fragment}.php")) {
+      $fragmentfile = "themes/{$this->theme}/fragments/{$fragment}.php";
+    } elseif (is_file("themes/default/fragments/{$fragment}.php")) {
+      $fragmentfile = "themes/default/fragments/{$fragment}.php";
+    } else {
+      return FALSE;
+    }
+    extract($variables, EXTR_SKIP | EXTR_REFS);
+    extract($this->router->variables, EXTR_SKIP | EXTR_REFS);
+    include $fragmentfile;
+  }
 
 }
+
 
 abstract class OFFController {
   public $OFF;
