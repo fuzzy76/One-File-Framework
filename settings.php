@@ -1,16 +1,15 @@
 <?php
 
-$settings = array(
-  'site_root' =>    'http://localhost:8888/~fuzzy76/off/',
-  'site_title' =>   'OneFileFramework',
-  'db_host' =>      'localhost',
-  'db_user' =>      'off',
-  'db_password' =>  'offpw',
-  'db_database' =>  'off',
-  'libs' => array(
-    'global.php',
-    'global/global2.php',
-  ),
-);
+$settings = new stdClass;
+$settings->site_title = 'OneFileFramework';
+$settings->libs = array(
+  'global.php',
+  'global/global2.php',
+  );
+$settings->db_host = 'localhost';
+$settings->db_user = 'off';
+$settings->db_password = 'offpw';
+$settings->db_database = 'off';
+
 
 

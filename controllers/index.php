@@ -6,7 +6,7 @@ class Index extends OFFController {
   
     $this->OFF->message['notice'] = 'The controller is f... working!';
     
-    return array('b' => "Variable from controller");
+    return array('b' => "Variable from controller", 'c' => var_export($_SERVER, TRUE));
   }
   
 }

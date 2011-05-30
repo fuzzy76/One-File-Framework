@@ -5,8 +5,8 @@ require('settings.php');
 $OFF = new OFF($settings);
 $OFF->parseRequest();
 
-if (isset($settings['libs'])) {
-  foreach ($settings['libs'] as $lib) {
+if (isset($settings->libs)) {
+  foreach ($settings->libs as $lib) {
     include "libs/$lib";
   }
 }
@@ -36,7 +36,7 @@ class OFF {
    */
   public $theme = 'default';
   /**
-   * The settings for the site
+   * The settings for the site as derived from settings.php (unchanged)
    * 
    * @var array
    * @access public
@@ -49,6 +49,14 @@ class OFF {
    * @access public
    */
   public $message = array();
+
+  /**
+   * The root of OFF (in it's simplest form, '/')
+   * 
+   * @var mixed
+   * @access public
+   */
+  public $site_root;
 
   /**
    * Constructor for the OFF class.
@@ -68,11 +76,17 @@ class OFF {
       'title' => 'OFF site',
       'variables' => array(),
     );
-    $this->settings = (object) $settings;
+    $this->settings = $settings;
+
     if (isset($this->settings->theme))
       $this->theme = $this->settings->theme;
     if (isset($this->settings->site_title))
       $this->router->title = $this->settings->site_title;
+    if (isset($this->settings->site_root)) {
+      $this->site_root = $this->settings->site_root;
+    } else {
+      $this->site_root = $_SERVER['SCRIPT_NAME'];
+    }
   }
 
   /**

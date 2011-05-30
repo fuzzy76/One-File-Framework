@@ -8,3 +8,14 @@ This is the default view.
 <?php echo $b; ?>
 
 <h1><?php $this->outputFragment('testfragment', array('a' => 'Fragment variable')); ?></h1>
+
+<br>
+
+<pre><code>
+<?php echo $c; ?>
+</code></pre>
+
+<pre><code>
+<?php var_export($this); ?>
+</code></pre>
+
