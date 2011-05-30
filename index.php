@@ -16,13 +16,47 @@ $OFF->view();
 
 // End of execution
 
+/**
+ * The OFF class is the heart of the OFF framework.
+ */
 class OFF {
 
+  /**
+   * A stdobject containing details on how the current request is handled.
+   * 
+   * @var mixed
+   * @access public
+   */
   public $router;
+  /**
+   * The theme being used for output
+   * 
+   * @var string
+   * @access public
+   */
   public $theme = 'default';
+  /**
+   * The settings for the site
+   * 
+   * @var array
+   * @access public
+   */
   public $settings = array();
+  /**
+   * An array of messages meant for the user
+   * 
+   * @var array
+   * @access public
+   */
   public $message = array();
 
+  /**
+   * Constructor for the OFF class.
+   * 
+   * @access public
+   * @param mixed $settings An array of settings for the site. 
+   * @return void
+   */
   function __construct($settings) {
     $this->router = (object) array(
       'controller' => 'index',
@@ -41,6 +75,12 @@ class OFF {
       $this->router->title = $this->settings->site_title;
   }
 
+  /**
+   * Parses the current request.
+   * 
+   * @access public
+   * @return void
+   */
   function parseRequest() {
     if (isset($_GET['p'])) {
       if (preg_match('|^[0-9a-zA-Z\/]*\z|',$_GET['p'])) {
@@ -63,6 +103,12 @@ class OFF {
     }
   }
 
+  /**
+   * Invokes the controller/action.
+   * 
+   * @access public
+   * @return void
+   */
   function controller() {
     if (is_file("controllers/{$this->router->controller}.php")) {
       include "controllers/{$this->router->controller}.php";
@@ -75,6 +121,13 @@ class OFF {
     }
   }
 
+  /**
+   * Invokes the view (wrapping it in a wireframe). The wireframe is called with
+   * $this pointing to the OFF object executing.
+   * 
+   * @access public
+   * @return void
+   */
   function view() {
     // Check for view implementations
 
@@ -120,6 +173,14 @@ class OFF {
     include $wireframe;
   }
 
+  /**
+   * Output the current view. This is called from within the wireframe. The view
+   * has the router variables exposed as local variables as well as $this which
+   * points to the OFF object currently executing.
+   * 
+   * @access public
+   * @return void
+   */
   function outputView() {
     if (!empty($this->router->calculated_view)) {
       extract($this->router->variables, EXTR_SKIP | EXTR_REFS);
@@ -127,6 +188,16 @@ class OFF {
     }
   }
   
+  /**
+   * Outputs the given fragment. The fragment has access to an OFF object as
+   * $this, the provided variables as well as the router variables (in that
+   * prioritized order).
+   * 
+   * @access public
+   * @param mixed $fragment The id of the fragment to output
+   * @param array $variables Optional array of variables to pass to the fragment.
+   * @return void
+   */
   function outputFragment($fragment, $variables = array()) {
     if (is_file("themes/{$this->theme}/fragments/{$fragment}.php")) {
       $fragmentfile = "themes/{$this->theme}/fragments/{$fragment}.php";
@@ -143,6 +214,12 @@ class OFF {
 }
 
 
+/**
+ * The class all controllers needs to subclass. Currently this wrapper only
+ * makes sure to store a referance to the OFF object that created us.
+ * 
+ * @abstract
+ */
 abstract class OFFController {
   public $OFF;
   function __construct() {
