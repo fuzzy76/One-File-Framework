@@ -85,7 +85,12 @@ class OFF {
     if (isset($this->settings->site_root)) {
       $this->site_root = $this->settings->site_root;
     } else {
-      $this->site_root = $_SERVER['SCRIPT_NAME'];
+      // Experimental hack to hide 'index.php' at the end of the url. Your mileage may vary wildldy.
+      if (substr($_SERVER['SCRIPT_NAME'], -9) === 'index.php') {
+        $this->site_root = substr($_SERVER['SCRIPT_NAME'], 0, -9);
+      } else {
+        $this->site_root = $_SERVER['SCRIPT_NAME'];
+      }
     }
   }
 
