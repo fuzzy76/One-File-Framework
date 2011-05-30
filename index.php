@@ -229,6 +229,17 @@ class OFF {
     extract($this->router->variables, EXTR_SKIP | EXTR_REFS);
     include $fragmentfile;
   }
+  
+  function url($page, $args = array() ) {
+    $url = "{$this->site_root}?p={$page}";
+    if (count($args)) {
+      $n = 1;
+      foreach ($args as $arg) {
+        $url .= "&amp;arg$n=".urlencode($arg);
+      }
+    }
+    return $url;
+  }
 
 }
 

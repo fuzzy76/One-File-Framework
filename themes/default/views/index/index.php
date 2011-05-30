@@ -9,13 +9,17 @@ This is the default view.
 
 <h1><?php $this->outputFragment('testfragment', array('a' => 'Fragment variable')); ?></h1>
 
+<a href="<?php echo $this->url('edit/user', array(1,'Jêrome')); ?>">dummy link</a>
+
 <br>
 
 <pre><code>
+$_SERVER:
 <?php echo $c; ?>
 </code></pre>
 
 <pre><code>
+$OFF:
 <?php var_export($this); ?>
 </code></pre>
 
